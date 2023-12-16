@@ -1,0 +1,92 @@
+
+{% extends 'hospital/patient_base.html' %}
+{% load static %}
+{% block content %}
+
+<head>
+    <meta charset="utf-8">
+  <title>A simple, clean, and responsive HTML invoice template</title>
+
+  <style>
+
+    .chat-container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #eee;
+      box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+      font-size: 16px;
+      line-height: 24px;
+      font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+      color: #555;
+    }
+
+    .chat-container h2 {
+      text-align: center;
+    }
+
+    #chat-messages {
+      height: 200px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    #user-input {
+      width: 70%;
+      padding: 5px;
+      margin-right: 5px;
+    }
+
+    button {
+      padding: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<br><br><br>
+
+<div class="chat-container">
+  <h2>Chatbot</h2>
+  <div id="chat-messages"></div>
+  <input type="text" id="user-input" placeholder="Type your message...">
+  <button onclick="sendMessage()">Send</button>
+  <button onclick="clearChat()">Clear Chat</button>
+</div>
+
+<script>
+  function sendMessage() {
+    var userInput = document.getElementById('user-input').value;
+    var chatMessages = document.getElementById('chat-messages');
+    
+    // Display user message with a delete button
+    chatMessages.innerHTML += '<p>User: ' + userInput + ' <button onclick="deleteMessage(this)">Delete</button></p>';
+    
+    // Use AJAX to send userInput to the chatbot response view
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '{% url "chatbot_response" %}', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        // Display chatbot response with a delete button
+        chatMessages.innerHTML += '<p>Chatbot: ' + JSON.parse(xhr.responseText).response + ' <button onclick="deleteMessage(this)">Delete</button></p>';
+      }
+    };
+    xhr.send('user_input=' + encodeURIComponent(userInput));
+  }
+
+  function deleteMessage(button) {
+    // Find the parent <p> element and remove it
+    var messageContainer = button.parentNode;
+    messageContainer.parentNode.removeChild(messageContainer);
+  }
+
+  function clearChat() {
+    var chatMessages = document.getElementById('chat-messages');
+    chatMessages.innerHTML = '';
+  }
+</script>
+
+{% endblock content %}
