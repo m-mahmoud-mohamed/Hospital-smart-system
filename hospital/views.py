@@ -815,7 +815,10 @@ def patient_discharge_view(request):
 
 
 
+# Use a pipeline as a high-level helper
+from transformers import pipeline
 
+pipe = pipeline("text-generation", model="SumayyaAli/tiny-llama-1.1b-chat-medical")
 
 def chatbot_view(request):
     return render(request, 'hospital/ChatBot.html')
@@ -824,7 +827,14 @@ def chatbot_view(request):
 def chatbot_response(request):
     if request.method == 'POST':
         user_input = request.POST.get('user_input', '')
-        
-        chatbot_response = f"Chatbot response to '{user_input}'"
-        return JsonResponse({'response': chatbot_response})
+        print(f"User Input: {user_input}")
+
+        try:
+            output = pipe(user_input, max_length=200, num_return_sequences=1)[0]['generated_text']
+            print(f"Model Output: {output}")
+
+            return JsonResponse({'response': output})
+        except Exception as e:
+            return JsonResponse({'error': f'Error in processing: {str(e)}'})
+
     return JsonResponse({'error': 'Invalid request method'})
