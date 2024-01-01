@@ -65,6 +65,11 @@
         </div>
 
         <div class="form-content">
+          {% if form.errors %}
+          <div class="alert alert-danger">
+            <p>Invalid username or password. Please try again.</p>
+          </div>
+        {% endif %}
           <div class="row">
             <div class="col-md-6">
 
